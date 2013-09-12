@@ -1,6 +1,6 @@
 ---
 layout: post 
-title: LeetCode two sum
+title: LeetCode two sum (1)
 categories:
 - Online Judge
 tags:
