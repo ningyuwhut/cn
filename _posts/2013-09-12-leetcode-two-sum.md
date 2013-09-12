@@ -26,23 +26,20 @@ tags:
 
 代码:
 
-```
-
-vector<int> twosum(vector<int> &numbers, int target){
-    vector<int> result;
-    for( int i = 0; i < numbers.size(); ++i ){
-	for(int j = i+1; j < numbers.size(); ++j  ){
-	    if( numbers[i] + numbers[j] == target ){
-		result.push_back(i+1);
-		result.push_back(j+1);
-		return result;
+    vector<int> twosum(vector<int> &numbers, int target){
+	vector<int> result;
+	for( int i = 0; i < numbers.size(); ++i ){
+	    for(int j = i+1; j < numbers.size(); ++j  ){
+		if( numbers[i] + numbers[j] == target ){
+		    result.push_back(i+1);
+		    result.push_back(j+1);
+		    return result;
+		}
 	    }
 	}
+	return result;
     }
-    return result;
-}
 
-```
 
 解法二:
 
@@ -52,86 +49,83 @@ vector<int> twosum(vector<int> &numbers, int target){
 
 代码:
 
-```
+    void quick_sort( vector<int>& numbers, vector<int>& index, int begin, int end ){
+	if( begin >= end-1 )
+	    return;
+	int k = partition( numbers, index, begin, end);
+	quick_sort( numbers, index, begin, k);
+	quick_sort( numbers, index, k+1, end );
+    }
 
-void quick_sort( vector<int>& numbers, vector<int>& index, int begin, int end ){
-    if( begin >= end-1 )
-	return;
-    int k = partition( numbers, index, begin, end);
-    quick_sort( numbers, index, begin, k);
-    quick_sort( numbers, index, k+1, end );
-}
+    int partition(vector<int>& numbers, vector<int>& index, int begin, int end){
+	int pivot = numbers[begin];
+	int pivotIndex = index[begin];
+	int i = begin;
+	int j = end;
 
-int partition(vector<int>& numbers, vector<int>& index, int begin, int end){
-    int pivot = numbers[begin];
-    int pivotIndex = index[begin];
-    int i = begin;
-    int j = end;
+	while( i < j ){
+	    while( numbers[++i] < pivot && i < end );
+	    while( numbers[--j] > pivot && j > begin );
 
-    while( i < j ){
-	while( numbers[++i] < pivot && i < end );
-	while( numbers[--j] > pivot && j > begin );
+	    if( i < j ){
+		int tmp = numbers[i ];
+		numbers[i] = numbers[j];
+		numbers[j] = tmp;
 
-	if( i < j ){
-	    int tmp = numbers[i ];
-	    numbers[i] = numbers[j];
-	    numbers[j] = tmp;
+		int tmpIndex = index[i];
+		index[i] = index[j];
+		index[j] = tmpIndex;
+	    }
+       }
 
-	    int tmpIndex = index[i];
-	    index[i] = index[j];
-	    index[j] = tmpIndex;
-	}
-   }
+	numbers[begin] = numbers[j];
+	numbers[j] = pivot;
+	index[begin] = index[j];
+	index[j] = pivotIndex;
+	return j;
+    }
 
-    numbers[begin] = numbers[j];
-    numbers[j] = pivot;
-    index[begin] = index[j];
-    index[j] = pivotIndex;
-    return j;
-}
-
-vector<int> twoSum(vector<int> &numbers, int target) {
-    vector<int> index;
-    for( int i = 0; i < numbers.size(); ++i )//保存排序后元素的下标,从1开始
-	  index.push_back(i+1);
-    
-    vector<int> result;
-    quick_sort(numbers, index, 0, numbers.size() );//升序排列
-    
-    for( int i = 0; i < numbers.size(); ++i )
-    {
-	int target_minus_i = target - numbers[i];
+    vector<int> twoSum(vector<int> &numbers, int target) {
+	vector<int> index;
+	for( int i = 0; i < numbers.size(); ++i )//保存排序后元素的下标,从1开始
+	      index.push_back(i+1);
 	
-	int low = 0;
-	int high = numbers.size() -1;
-	int mid ;
+	vector<int> result;
+	quick_sort(numbers, index, 0, numbers.size() );//升序排列
 	
-	while( low <= high ){
-	    mid = (low+high)/2;
-	    if( numbers[mid] == target_minus_i ){
-		if( mid != i ){
-		    result.push_back(index[i]);
-		    result.push_back(index[mid]);
-		    sort( result.begin(), result.end() );
-		    return result;
-		}else if( mid >0 && numbers[mid-1] == target_minus_i ){
-		    result.push_back(index[i]);
-		    result.push_back(index[mid-1]);
-		    sort( result.begin(), result.end() );
-		   return result;
-		}else if( mid < numbers.size()-1 && numbers[mid+1] == target_minus_i ){
-		    result.push_back(index[i]);
-		    result.push_back(index[mid+1]);
-		    sort( result.begin(), result.end() );
-		  return result;
+	for( int i = 0; i < numbers.size(); ++i )
+	{
+	    int target_minus_i = target - numbers[i];
+	    
+	    int low = 0;
+	    int high = numbers.size() -1;
+	    int mid ;
+	    
+	    while( low <= high ){
+		mid = (low+high)/2;
+		if( numbers[mid] == target_minus_i ){
+		    if( mid != i ){
+			result.push_back(index[i]);
+			result.push_back(index[mid]);
+			sort( result.begin(), result.end() );
+			return result;
+		    }else if( mid >0 && numbers[mid-1] == target_minus_i ){
+			result.push_back(index[i]);
+			result.push_back(index[mid-1]);
+			sort( result.begin(), result.end() );
+		       return result;
+		    }else if( mid < numbers.size()-1 && numbers[mid+1] == target_minus_i ){
+			result.push_back(index[i]);
+			result.push_back(index[mid+1]);
+			sort( result.begin(), result.end() );
+		      return result;
+		    }
+		}else if( numbers[mid] > target_minus_i ){
+		    high = mid-1;
+		}else{
+		    low = mid+1;
 		}
-	    }else if( numbers[mid] > target_minus_i ){
-		high = mid-1;
-	    }else{
-		low = mid+1;
 	    }
 	}
     }
-}
 
-```
