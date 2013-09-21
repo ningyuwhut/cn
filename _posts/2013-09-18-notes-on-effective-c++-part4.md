@@ -71,7 +71,7 @@ inline const Rational operator*(const Rational& lhs, const Rational& rhs){
 }
 
 记住:
-    绝不要返回pointer或reference指向一个local stack对象,或返回reference指向一个heap-allocated对象,或返回pointer或reference指向一个local static对象而有可能同时需要多个这样的对象
+> 绝不要返回pointer或reference指向一个local stack对象,或返回reference指向一个heap-allocated对象,或返回pointer或reference指向一个local static对象而有可能同时需要多个这样的对象
     
 ##条款23: 宁以non-member,non-friend替换member函数
 

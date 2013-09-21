@@ -21,7 +21,6 @@ tags:
 >  Both the left and right subtrees must also be binary search trees.
 
 一个比较丑陋的解法: brute force
-
 代码:
 
      bool preOrder( TreeNode *node ){
@@ -66,11 +65,12 @@ tags:
 
 另外,在leetcode论坛上看到一种比较巧妙的办法,下面抄录过来:
 
-	    10
-       /  \
-      5   15     
-	     /  \
-	    6   20
+
+    10
+   /  \
+  5   15     -------- binary tree (1)
+     /  \
+    6   20
 
 以上面的树为例:
 
@@ -91,6 +91,4 @@ tags:
 	return isBSTHelper(root, INT_MIN, INT_MAX);
     }
 
-参考:
 
-1. <http://discuss.leetcode.com/questions/47/validate-binary-search-tree>
