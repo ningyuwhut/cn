@@ -1,5 +1,5 @@
 ---
-title: Keep On Fighting!
+title: Life is Struggle!
 layout: page
 ---
 
