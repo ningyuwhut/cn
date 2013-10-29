@@ -80,8 +80,8 @@ tags:
 
     bool isBSTHelper(BinaryTree *p, int low, int high) {
 	if (!p) return true;
-	    if (low < p->data && p->data < high)
-		return isBSTHelper(p->left, low, p->data) &&  isBSTHelper(p->right, p->data, high);
+	if (low < p->data && p->data < high)
+	    return isBSTHelper(p->left, low, p->data) &&  isBSTHelper(p->right, p->data, high);
 	else
 	    return false;
     }
