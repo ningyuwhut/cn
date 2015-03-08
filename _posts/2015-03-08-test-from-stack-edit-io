@@ -1,18 +1,19 @@
----
-  layout: post
-  title: Test from stackedit.io
-  categories:
-  tags:
-  ---
-  
-这是从[StackEdit](https://stackedit.io/)发布的一篇测试文章。
+<hr>
 
-在StackEdit上可以直接发布文章到github上搭建的jekyll博客，只需要发布的适合像下面这样填写：
+<p>layout: post <br>
+  title: Test from stackedit.io <br>
+  categories: <br>
+  tags:</p>
 
->Repository: cn
-Branch: gh-pages
-File path: _post/2015-03-08-test-from-stack-edit-io
-Format: markdown
+<hr>
 
+<p>这是从<a href="https://stackedit.io/">StackEdit</a>发布的一篇测试文章。</p>
 
+<p>在StackEdit上可以直接发布文章到github上搭建的jekyll博客，只需要发布的适合像下面这样填写：</p>
 
+<blockquote>
+  <p>Repository: cn <br>
+  Branch: gh-pages <br>
+  File path: _post/2015-03-08-test-from-stack-edit-io <br>
+  Format: markdown</p>
+</blockquote>
