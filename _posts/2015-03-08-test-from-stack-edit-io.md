@@ -13,7 +13,7 @@
 
 >Branch: gh-pages
 
->File path: _post/2015-03-08-test-from-stack-edit-io
+>File path: _post/2015-03-08-test-from-stack-edit-io.md
 
 >Format: markdown
 
