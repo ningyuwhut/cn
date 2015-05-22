@@ -3,7 +3,7 @@
   title: scikit-learn 笔记（一）：GLM
   categories:
   tags:
-  ---
+ ---
 
 今天开始学习scikit-learn,把遇到的问题记录在这里。
 
