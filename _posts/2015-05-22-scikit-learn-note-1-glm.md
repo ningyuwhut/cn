@@ -1,11 +1,20 @@
+<hr>
+
+<p>layout: post <br>
+  title: scikit-learn 笔记（一）：GLM <br>
+  categories: <br>
+  tags:</p>
+
+<hr>
+
 <p>今天开始学习scikit-learn,把遇到的问题记录在这里。</p>
 
 <pre><code>The following are a set of methods intended for regression in which the target value is expected to be a linear combination of the input variables. 
 </code></pre>
 
-<p>第一句话就让我有点疑问，线性模型的定义不应该是参数<script type="math/tex" id="MathJax-Element-606">w</script>的线性组合吗，最简单的线性回归也是关于输入变量<script type="math/tex" id="MathJax-Element-607">x</script> 的线性组合，难不成下面都是这种最简单的线性组合。</p>
+<p>第一句话就让我有点疑问，线性模型的定义不应该是参数<script type="math/tex" id="MathJax-Element-630">w</script>的线性组合吗，最简单的线性回归也是关于输入变量<script type="math/tex" id="MathJax-Element-631">x</script> 的线性组合，难不成下面都是这种最简单的线性组合。</p>
 
-<p>线性回归学习的目标是拟合参数<script type="math/tex" id="MathJax-Element-608">w</script>的线性模型，从而最小化目标变量的观测值和预测值之间的残差平方和（这个定义是不是有点狭隘？）。</p>
+<p>线性回归学习的目标是拟合参数<script type="math/tex" id="MathJax-Element-632">w</script>的线性模型，从而最小化目标变量的观测值和预测值之间的残差平方和（这个定义是不是有点狭隘？）。</p>
 
 <h1 id="ordinary-least-squares">Ordinary Least Squares</h1>
 
