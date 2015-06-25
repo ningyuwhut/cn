@@ -1,7 +1,7 @@
 ---
   layout: post
   title: Test from stackedit.io
-  categories:
+  categories: machine learning
   tags:
 ---
   
