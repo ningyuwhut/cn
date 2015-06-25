@@ -1,7 +1,7 @@
 ---
     layout: post 
     title: scikit-learn note GLM 
-    categories: machine learning
+    categories: MachineLearning
     tags:
 ---
 

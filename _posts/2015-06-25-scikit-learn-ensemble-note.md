@@ -1,7 +1,7 @@
 ---
   layout: post
   title: scikit-learn ensemble note
-  categories: machine learning
+  categories: MachineLearning
   tags:
 ---
 
