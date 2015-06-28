@@ -48,6 +48,8 @@ random forests在实现时样本是有放回抽样的。
 
 >As in random forests, a random subset of candidate features is used, but** instead of looking for the most discriminative thresholds, thresholds are drawn at random for each candidate feature and the best of these randomly-generated thresholds is picked as the splitting rule**. This usually allows to reduce the variance of the model a bit more, at the expense of a slightly greater increase in bias:
 
+和随机森林一样都使用随机抽取的特征，但是不同的是，随机森林根据某一标准(比如熵)选择最有区分性(discriminative)的阈值，而在Extremely Randomized Trees中，每个特征的阈值是随机选取的，然后从这些随机选取的阈值中选择最好的特征进行分割。这样，模型的variance会更低，同时bias会升高。
+
 ##参数
 
 需要调整的参数有两个： n_estimators and max_features.
