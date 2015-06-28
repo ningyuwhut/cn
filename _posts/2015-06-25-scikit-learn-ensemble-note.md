@@ -58,6 +58,7 @@ n_estimators是树的数量。越多越好，但是同时训练时间越大。�
 
 >Empirical good default values are max_features=n_features for regression problems, and max_features=sqrt(n_features) for classification tasks (where n_features is the number of features in the data). Good results are often achieved when setting max_depth=None in combination with min_samples_split=1 (i.e., when fully developing the trees).Bear in mind though that these values are usually not optimal, and might result in models that consume a lot of ram. The best parameter values should always be cross-validated. In addition, note that in random forests, bootstrap samples are used by default (bootstrap=True) while the default strategy for extra-trees is to use the whole dataset (bootstrap=False).
 
+根据经验，分类问题中max_features设为sqrt(n_features),回归问题设置为n_features。同时，决策树为充分生长的树(深度不限，每个节点的最少样本数不限),但是，永远记住
 **经验值是没有最优的，最优的参数应该总是从cross-validated得到。**
 
 
