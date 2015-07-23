@@ -3,3 +3,5 @@ media/
 _dev_config.yml
 *.swp
 _old_posts/
+ensemble sklearn.txt
+_local_config.yml.old
