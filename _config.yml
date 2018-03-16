@@ -3,4 +3,4 @@ permalink: /:year/:month/:title/
 url: http://ningyuwhut.github.io/cn
 author: 宁雨
 pygments: true
-
+highlighter: pygments
