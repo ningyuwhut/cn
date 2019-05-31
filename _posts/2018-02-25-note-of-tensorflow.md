@@ -177,3 +177,37 @@ writer =tf.train.SummaryWriter('./my_graph', sess.graph)
 
 SummaryWriter对象初始化完成后会立即写入这些数据。一旦执行完成这行代码，便可以启动TensorBoard。
 
+
+
+调试
+==
+
+
+https://wookayin.github.io/tensorflow-talk-debugging
+
+tfdbg
+
+
+广播机制
+===
+
+
+timeline
+==
+
+    import tensorflow as tf
+    from tensorflow.python.client import timeline
+
+    run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+    run_metadata = tf.RunMetadata()
+    with tf.Session() as sess:
+        sess.run(fetches, feed_dict=feed, options=run_options, run_metadata=run_metadata) #指定options和run_metadata参数,fetches和feed_dict自定义
+
+    #只打印特定的几个batch时的timeline，保存到json文件中
+    if batch_num  >= 10 and batch_num < 14:
+        from tensorflow.python.client import timeline
+        fetched_timeline = timeline.Timeline(run_metadata.step_stats)
+        chrome_trace = fetched_timeline.generate_chrome_trace_format()
+        with open('timeline_02.json', 'w') as f:
+            f.write(chrome_trace)
+

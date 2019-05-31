@@ -70,3 +70,12 @@ python 中的float是64位的，占用8字节
 ```
 
 可以看到，使用astype效果也是一样的.
+
+
+内存相关:
+
+https://ipython-books.github.io/45-understanding-the-internals-of-numpy-to-avoid-unnecessary-array-copying/
+https://www.dataquest.io/blog/settingwithcopywarning/
+
+https://jakevdp.github.io/blog/2014/05/09/why-python-is-slow/
+http://gouthamanbalaraman.com/blog/numpy-vs-pandas-comparison.html

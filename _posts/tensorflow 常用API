@@ -1,0 +1,15 @@
+---
+  layout: post
+  title: tensorflow 常见API
+  categories: MachineLearning
+  tags:
+---
+
+
+1.  concat stack
+
+concat 用于沿某个维度连接两个维度(shape)相同的tensor，不能连接向量。
+
+生成的新tensor 维度不会改变。
+
+stack 沿新的维度拼接两个tensor， 生成的新tensor的维度会增加1.
