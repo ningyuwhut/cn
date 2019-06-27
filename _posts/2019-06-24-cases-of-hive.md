@@ -1,6 +1,6 @@
 ---
   layout: post
-  title: rsync 错误
+  title: 遇到过的hive问题
   categories: 开发
   tags:笔记
 ---
