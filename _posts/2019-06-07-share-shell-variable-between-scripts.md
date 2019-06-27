@@ -2,7 +2,7 @@
   layout: post
   title: 脚本之间共享变量
   categories: 开发
-  tags:笔记
+  tags:
 ---
 
 

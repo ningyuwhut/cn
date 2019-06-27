@@ -2,7 +2,7 @@
   layout: post
   title: 遇到过的hive问题
   categories: 开发
-  tags:笔记
+  tags:
 ---
 
 今天在测试流程的时候发现rsync在拉取数据时遇到如下错误:
