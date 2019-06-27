@@ -2,7 +2,7 @@
   layout: post
   title: shell笔记
   categories: 开发
-  tags:笔记
+  tags:
 ---
 
 数组操作
