@@ -98,7 +98,7 @@ $$
 $$
 Obj^t = \sum_{i=1}^n [ g_i f_t(x_i) + 1/2 h_i f_t^2(x_i)  ] +\Omega(f_t) \\
        = \sum_{i=1}^n [ g_i w_q(x_i) + 1/2 h_i w_q^2(x_i)  ] + \gamma T + 1/2 \lambda \sum_{j=1}^T w_j^2 \\
-       = \sum_{j=1}^T [ (\sum{i\in I_j }g_i) w_j + 1/2(\sum_{i\in I_j} h_i + \lambda)w_j^2]  + \gamma T
+       = \sum_{j=1}^T [ (\sum_{i\in I_j }g_i) w_j + 1/2(\sum_{i\in I_j} h_i + \lambda)w_j^2]  + \gamma T
 $$
 
 
@@ -118,8 +118,7 @@ $$
 目标函数变成:
 
 $$
-
-Obj^{(t)}= \sum_{j=1}^T [ (\sum{i\in I_j }g_i) w_j + 1/2(\sum_{i\in I_j} h_i + \lambda)w_j^2]  + \gamma T \\
+Obj^{(t)}= \sum_{j=1}^T [ (\sum_{i\in I_j }g_i) w_j + 1/2(\sum_{i\in I_j} h_i + \lambda)w_j^2]  + \gamma T \\
 	 = \sum_{j=1}^T [ G_j w_j + 1/2 (H_j +\lambda)w_j^2] + \gamma T
 $$
 

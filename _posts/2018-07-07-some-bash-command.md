@@ -102,3 +102,42 @@ three sets of characters, three times, indicating permissions for owner, group a
 
     !!:gs/a/b
     #将上一个命令中所有的a全部替换为b  
+
+
+#### 数组操作
+
+定义数组
+
+    learning_rate=(0.1 0.01 0.5 1)
+
+数组长度
+
+    echo ${#learning_rate[@]}
+
+切片
+
+    echo ${learning_rate[@]:1:3}
+
+
+遍历
+
+    for lr in ${learning_rate[@]};do
+        echo $lr
+    done
+
+    或者
+
+    for i in ${#learning_rate[@]};do
+        echo ${learning_rate[$i]}
+
+#### tar
+
+单个文件压缩打包 tar czvf my.tar file1
+
+多个文件压缩打包 tar czvf my.tar file1 file2,...
+
+单个目录压缩打包 tar czvf my.tar dir1
+
+多个目录压缩打包 tar czvf my.tar dir1 dir2
+
+解包至当前目录：tar xzvf my.tar

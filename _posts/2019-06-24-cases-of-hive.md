@@ -5,21 +5,144 @@
   tags:
 ---
 
-今天在测试流程的时候发现rsync在拉取数据时遇到如下错误:
 
-    protocol version mismatch -- is your shell clean?
-    (see the rsync man page for an explanation)
-    rsync error: protocol incompatibility (code 2) at compat.c(171) [receiver=3.0.6]
-
-然后在网上搜了一下，原来在rsync 的man page 有如下描述:
-
-> rsync  occasionally  produces error messages that may seem a little cryptic. The one that seems to cause the most confusion is "protocol version mismatch       -- is your shell clean?".
-
->       This message is usually caused by your startup scripts or remote shell facility producing unwanted garbage on the stream that  rsync  is  using  for  its transport. The way to diagnose this problem is to run your remote shell like this:
-
->              ssh remotehost /bin/true > out.dat
-
->       then  look  at  out.dat. If everything is working correctly then out.dat should be a zero length file. If you are getting the above error from rsync then you will probably find that out.dat contains some text or data. Look at the contents and try to work out what is producing it. The most common  cause  is incorrectly configured shell startup scripts (such as .cshrc or .profile) that contain output statements for non-interactive logins. If  you are having trouble debugging filter patterns, then try specifying the -vv option.  At this level of verbosity rsync will show why each individual file is included or excluded.
+1. **计算均值、方差时没有考虑null的情况** 
 
 
-按照这里的提示，执行`ssh remotehost /bin/true > out.dat`,out.dat果然有几个字符。根据提示，在远程机器的.bashrc中找到了输出这几个字符的代码。原来刚才为了调试另外的脚本我在.bashrc中加了几行输出代码，然后再同步数据的时候就遇到上面的错误了。看来.bashrc这些文件不能随便加输出。
+解决方案：
+select avg(coalesce(some_column, 0))
+from ...
+
+参考： https://stackoverflow.com/questions/22220449/sql-avg-with-null-values
+
+2. collect_list collect_set 会丢弃NULL
+
+collect_list 在遇到NULL值时会直接丢掉，所以collect_list 出来的结果可能跟预期并不一致
+
+所以需要做一些出来，如果该列是int型的话，可以像1中那样在值为NULL 时给 0
+
+select collect_list(coalesce(some_column, 0)) from ...
+
+
+参考：https://stackoverflow.com/questions/31956335/hive-collect-list-does-not-collect-null-values
+
+
+3. 对多个字段进行collect_list时，结果数组中的元素可能并不是一一对应的。
+
+比如hive表结构如下：
+
+  |-- uuid string
+  |-- poi_id string
+  |-- tag_id string
+
+如果统计每个uuid下的poi_id 和 tag_id 的话，使用多个collect_list:
+
+  select uuid,collect_list(poi_id) as poi_list, collect_list(tag_id) as tag_list from tableA  group by uuid
+
+这时，poi_list和 tag_list 中的元素可能并不是对应的，即同一条记录的poi_id 和 tag_id 在两个数组中可能有不一样的下标。
+
+可以实现如下：
+
+  SELECT uuid, collect_list(struct(poi_id, tag_id)) FROM tableA GROUP BY uuid
+
+也可以使用字符串连接的形式:
+
+  select uuid, concat_ws("#", collect_list( concat_ws("_", poi_id, tag_id) ) ) from tableA group by uuid
+
+
+参考:https://stackoverflow.com/questions/40407514/use-more-than-one-collect-list-in-one-query-in-spark-sql
+
+
+4. int和string类型之间比较
+
+假设hive表中有一个poiid 字段，该字段为int类型，假如hive实现如下：
+
+  select poi_id,
+  third_tag_id
+  from tableA
+  where dt = 20190701 
+  and poi_id is not null
+  and poi_id != 0
+  and poi_id != ''
+
+此时，返回的结果是空
+
+但是把 `and poi_id != ''` 去掉之后，结果就正常了。
+
+原因在于 将int型和string型进行比较时会发生隐式类型转换。
+
+执行下面的语句
+
+  select poi_id != '', poi_id  from  tableA where dt = 20190701 
+
+可以看到如下结果:
+
+NOT (CAST(poi_id AS DOUBLE) = CAST( AS DOUBLE)))	poi_id
+null	7380618
+null	7380617
+null	7380616
+null	7380615
+null	7380614
+null	7380613
+null	7380612
+null	7380611
+null	7380610
+null	7380609
+
+第一列全是null， 且列名那里是`NOT (CAST(poi_id AS DOUBLE) = CAST( AS DOUBLE)))`
+
+看起来是将poi_id 转换为double, `''`也转换为double，然后判断两个double是否相等，最后对结果进行取反。
+
+但是由于`''`转换为double时为null，所以将double 和一个null进行比较时 结果也就是null。
+
+可以验证如下:
+
+   select poi_id != '', cast('' as double) as empty_as_double, poi_id  from  tableA where dt = 20190701 
+
+结果如下：
+
+NOT (CAST(poi_id AS DOUBLE) = CAST( AS DOUBLE)))	empty_as_double	poi_id
+null	null	7380618
+null	null	7380617
+null	null	7380616
+null	null	7380615
+null	null	7380614
+null	null	7380613
+null	null	7380612
+null	null	7380611
+null	null	7380610
+null	null	7380609
+
+
+参考链接中还有几个：
+
+  "0" <> 0
+
+  NOT( CAST(0 as DOUBLE) = CAST(0 AS DOUBLE))
+
+这个为false
+
+  "hlagos" <> 0
+  NOT( CAST(hlagos as DOUBLE) = CAST(0 AS DOUBLE))
+
+和上面一样，把hlagos转换为double 会返回NULL
+
+  "" <> 0 
+
+这个和上面一样，把`""`转换为double会返回NULL
+
+
+参考：https://stackoverflow.com/questions/50849151/what-happens-when-compare-string-to-int-in-hive
+
+5. 应对数据倾斜(data skew)的小技巧
+
+
+  select * , floor(rand()*10000%10000) as mask from tableA where dt = 20190701  
+
+相当于
+
+
+
+
+
+
