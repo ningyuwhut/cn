@@ -46,9 +46,8 @@ GBDT中，信息增益经常使用节点分裂后的方差来衡量：
 
 有两个问题需要解决：
 
-1.将哪些特征bundle在一起
-
-2.如何构建bundle
+1. 将哪些特征bundle在一起
+2. 如何构建bundle
 
 定理：
 
@@ -58,9 +57,9 @@ GBDT中，信息增益经常使用节点分裂后的方差来衡量：
 
 bundle生成算法如下：
 
-1.构建带权图，权重是两个特征之间的冲突。
-2.根据节点的度对节点进行降序排列。
-3.遍历排序后的特征，要么分配一个新的bundle，要么分配到一个已有的bundle。
+1. 构建带权图，权重是两个特征之间的冲突。
+2. 根据节点的度对节点进行降序排列。
+3. 遍历排序后的特征，要么分配一个新的bundle，要么分配到一个已有的bundle。
 
 ![image](https://user-images.githubusercontent.com/1762074/118396070-4d119880-b680-11eb-803a-c6ecfa1322c3.png)
 
@@ -79,14 +78,13 @@ bundle生成算法如下：
 
 优化主要有以下几个方面:
 
-1.速度和内存优化
+### 速度和内存优化
 
-很多GBDT实现默认使用预排序算法，LightGBM使用直方图算法，有如下优点：
+  很多GBDT实现默认使用预排序算法，LightGBM使用直方图算法，有如下优点：
 
 a.降低计算每个分裂点的收益的开销
 
-预排序算法的时间复杂度是$$O(\#data)$$
-直方图建立的时间复杂度是$$O(\#data)$$,但是这是一次性的。一旦建立，基于直方图查找分裂点的复杂度是$$O(#bins)$$,而且bins的数量远小于data的数量。
+预排序算法的时间复杂度是$$O(\#data)$$,直方图建立的时间复杂度是$$O(\#data)$$,但是这是一次性的。一旦建立，基于直方图查找分裂点的复杂度是$$O(\#bins)$$,而且bins的数量远小于data的数量。
 
 b.直方图做差加速
 
@@ -102,11 +100,11 @@ c.减小内存
 
 d.减小分布式学习时的通信消耗。
 
-2.稀疏优化
+### 稀疏优化
 
-  只需要$$ O(2 * #non_zero_data)$$ 构建直方图。
+  只需要$$ O(2 * \#non_zero_data)$$ 构建直方图。
 
-3.准确度优化
+### 准确度优化
 
   Leaf-wise (Best-first) Tree Growth
 
@@ -118,91 +116,64 @@ LightGBM使用leaf-wise的方式，每次迭代都会选择loss下降最大的�
 但是，这种方法在数据量较小时容易过拟合，LightGBM 使用$$max_depth$$这种方式来限制树的深度。
 ![image](https://user-images.githubusercontent.com/1762074/118399941-2a887b00-b692-11eb-893a-179462bbdb92.png)
 
-Optimal Split for Categorical Features
+### 离散特征最优划分
 
-一般使用one-hot表示离散特征，但是这种方式不适合树模型，尤其是离散特征基数很大时，建成的树容易不平衡，且需要深度很大才能取得较好的效果。相比one-hot，一种更优的方式是把离散特征分成两个集合。如果有k个取值，那么$$2^{k-1}-1$$种可能的划分，对于回归树来说，更有效的算法可以达到$$O(k * log(k))$$的复杂度。做法是 根据累积统计值$$sum_gradient/sum_hession$$对直方图进行排序,然后在排序后的直方图中找到最优分裂点。
+一般使用one-hot表示离散特征，但是这种方式不适合树模型，尤其是离散特征基数很大时，建成的树容易不平衡，且需要深度很大才能取得较好的效果。相比one-hot，一种更优的方式是把离散特征分成两个集合。如果有k个取值，那么$$2^{k-1}-1$$种可能的划分，对于回归树来说，更有效的算法可以达到$$O(k * log(k))$$的复杂度。做法是 根据累积统计值$$sum_{gradient}/sum_{hession}$$对直方图进行排序,然后在排序后的直方图中找到最优分裂点。
 
-4.网络通信优化
+### 网络通信优化
 
 在分布式环境下，只需要"All reduce”, “All gather” and “Reduce scatter这种聚合通信算法，比点对点通信性能更好。
 
-5.分布式优化
+### 分布式优化
 
-特征并行
+#### 特征并行
 
 特征并行是指在决策树中并行寻找最优分裂点。传统做法如下：
 
-1.纵向分割数据（不同机器使用不同的特征集合
-
-2.worker在本地的特征集合中找到最优分裂点
-3.互相将本地最优分裂点通知给其他worker节点，从而得到最优的分裂点
-4.拥有最优分裂点的worker完成分裂操作，并把分裂结果发送给其他节点
-5.其他worker根据获取到的数据完成分裂。
+1. 纵向分割数据（不同机器使用不同的特征集合)
+2. worker在本地的特征集合中找到最优分裂点
+3. 互相将本地最优分裂点通知给其他worker节点，从而得到最优的分裂点
+4. 拥有最优分裂点的worker完成分裂操作，并把分裂结果发送给其他节点
+5. 其他worker根据获取到的数据完成分裂。
 
 缺点：
-有通信开销，时间复杂度是$$O(#data)$$,所以在样本数量大时特征并行加速不太好
 
-需要传递分裂结果，复杂度为$$O(#data / 8)$$,一个数据一个bit。
+有通信开销，时间复杂度是$$O(\#data)$$,所以在样本数量大时特征并行加速不太好
+
+需要传递分裂结果，复杂度为$$O(\#data / 8)$$,一个数据一个bit。
 
 LightGBM的做法是每个worker拥有整个样本数据，这样，就不需要传递分裂结果，因为每个worker都知道怎么分裂。
 具体过程如下：
 
-Workers find local best split point {feature, threshold} on local feature set.
+1. 每个worker在本地特征集上找到最优分裂点{特征，阈值}
+2. 每个worker将本地最优的分裂结果发送给其他节点，从中找到最优的。
+3. 完成最优切分。
 
-本地特征集上找到最优分裂点{特征，阈值}
+#### 数据并行
 
-Communicate local best splits with each other and get the best one.
+传统做法如下:
 
-将本地最优的分裂结果发送给其他节点，从中找到最优的。
+1. 平行切分数据
+2. worker使用本地数据构建直方图
+3. 从所有的本地直方图合并出全局直方图
+4. 从全局直方图中找到最优分裂点并完成分裂。
 
-Perform best split.
+缺点:
 
+通信消耗高。如果用点对点通信，单台机器的复杂度为$$ O(\#machine * \#feature * \#bin)$$,如果用allreduce这种聚合通信，复杂度为$$O(2 * \#feature * \#bin)$$。
 
-完成最优切分。
-
-Data Parallel
-
-Traditional Algorithm
-
-
-Partition data horizontally.
-
-平行切分数据
-
-Workers use local data to construct local histograms.
-
-worker使用本地数据构建直方图
-
-Merge global histograms from all local histograms.
-
-从所有的本地直方图合并出全局直方图
-
-Find best split from merged global histograms, then perform splits.
-
-从全局直方图中找到最优分裂点并完成分裂。
-
-缺点
-
-High communication cost
-
-如果用点对点通信，单台机器的复杂度为$$ O(\#machine * \#feature * \#bin)$$
-
-如果用allreduce这种聚合通信，复杂度为$$O(2 * \#feature * \#bin)$$。
-
-
-Data Parallel in LightGBM
+LightGBM中的数据并行
 
 使用Reduce Scatter 来合并直方图，
 
-Instead of “Merge global histograms from all local histograms”, LightGBM uses “Reduce Scatter” to merge histograms of different (non-overlapping) features for different workers. Then workers find the local best split on local merged histograms and sync up the global best split.
+不再是从所有的本地局部直方图合并出全局直方图，Lightgbm使用”Reduce Scatter“来合并不同的worker上的不同特征的直方图。然后workers 在本地合并的直方图中发现最好的切分点，然后同步最优的切分结果。
 
-As aforementioned, LightGBM uses histogram subtraction to speed up training. Based on this, we can communicate histograms only for one leaf, and get its neighbor’s histograms by subtraction as well.
+前面也提到，Lightgbm使用直方图做差来加速训练。根据这一点，我们只需要通过通信构建其中一个叶子的直方图，另外一个叶子的直方图也就得到了。
 
 
 Voting Parallel
 
-Voting parallel further reduces the communication cost in Data Parallel to constant cost. It uses two-stage voting to reduce the communication cost of feature histograms[10].
-
+Voting parallel 进一步降低了数据并行中的通信开销
 
 参考：
 
