@@ -5,15 +5,30 @@
   tags:
 ---
 
-dqn又忘了，需要复习下
+打算学习下DQN，在github上找了[一份代码](https://github.com/devsisters/DQN-tensorflow)，代码质量挺高。下面是阅读笔记，期望通过对该代码的学习加深对DQN的理解。
 
-入口为main.py
+代码结构如下：
 
-强化学习中涉及了两个实体，一个是智能体，一个是环境。
+````
+├── README.md
+├── config.py
+├── dqn
+│   ├── __init__.py
+│   ├── agent.py
+│   ├── base.py
+│   ├── environment.py
+│   ├── history.py
+│   ├── ops.py
+│   ├── replay_memory.py
+│   ├── utils.py
+└── main.py
+````
 
-这两个分别对应agent.py 和environment.py。
+程序的入口为main.py
 
-智能体通过与环境交互来实现累积回报最大化。交互的动作即action，获得的奖励即reward。同时，智能体也从一个状态(state)到达了另外一个state。
+强化学习中涉及了两个实体，一个是智能体，一个是环境，分别对应agent.py和environment.py。
+
+智能体通过与环境交互来实现累积回报最大化，交互的动作即action，获得的奖励即reward。同时，智能体也从一个状态(state)到达了另外一个state。
 
 根据config.py中的配置，history_length=4,即一个样本中包含四帧图像。
 样本中包含如下信息:
@@ -32,27 +47,24 @@ dqn又忘了，需要复习下
 
 q网络:
 三层卷积的配置如下:
-第一层:32个feature_map,每个feature_map大小[8,8],步长[4,4]
-第二层:64个feature_map,每个feature_map大小[4,4],步长[2,2]
-第三层:64个feature_map,每个feature_map大小[3,3],步长[1,1]
+
+1. 第一层:32个feature_map,每个feature_map大小[8,8],步长[4,4]
+2. 第二层:64个feature_map,每个feature_map大小[4,4],步长[2,2]
+3. 第三层:64个feature_map,每个feature_map大小[3,3],步长[1,1]
 
 当不使用GPU 时，cnn_format为NHWC,dqn网络过程如下：
-输入:[N,84,84,4]
-第一层
-stride:[1,4,4,1],kernel:[8,8,4,32]
-输出:
-根据 (x-kernel)/stride+1,得到输出维度:[N,20,20,32]
-第二层:
-stride:[1,2,2,1],kernel:[4,4,32,64]
-输出:
-[N,9,9,64]
-第三层:
-stride:[1,1,1,1],kernel:[3,3,64,64]
-输出:[N,7,7,64]
+0. 输入:[N,84,84,4]
 
+1. 第一层CNN
+stride:[1,4,4,1],kernel:[8,8,4,32] 输出: 根据 (x-kernel)/stride+1,得到输出维度:[N,20,20,32]
+2. 第二层CNN
+stride:[1,2,2,1],kernel:[4,4,32,64] 输出:[N,9,9,64]
+3. 第三层CNN
+stride:[1,1,1,1],kernel:[3,3,64,64] 输出:[N,7,7,64]
+4. 两层MLP
 reshape成[N,64*7*7]维度后接两层MLP
-最终输出[N,action_size],表示每个样本上每个action的未来累积期望的分布
-选择最大的动作记录到q_action中。
+5. 决策
+最终输出[N,action_size],表示每个样本上每个action的未来累积期望的分布, 选择最大的动作记录到q_action中。
 
 target 网络结构都一样
 
@@ -119,8 +131,10 @@ def clipped_error(x):
 先从[self.history_length, self.count - 1](闭区间）中随机生成待采样的样本的index，
 
 index需要满足如下条件：
+
 1.index >=current & index -history_length < current
-2.[index-history_length, index-1](闭区间)之间不能包含终止state
+
+2.\[index-history_length, index-1\](闭区间)之间不能包含终止state
 
 第一个条件是说选择的样本不能包含current，因为memory中的样本都是顺序添加的，这样的话选出来的样本包含的帧就不是连续的了
 第二个条件比较好理解，是指样本中不能包含终止状态的帧。但是下标为index的screen（即后文的poststates) 可以是终止状态的。

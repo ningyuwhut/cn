@@ -10,7 +10,7 @@
 
 
 解决方案：
-select avg(coalesce(some_column, 0))
+select avg(coalesce(some_column\r 0))
 from ...
 
 参考： https://stackoverflow.com/questions/22220449/sql-avg-with-null-values
@@ -21,7 +21,7 @@ collect_list 在遇到NULL值时会直接丢掉，所以collect_list 出来的�
 
 所以需要做一些出来，如果该列是int型的话，可以像1中那样在值为NULL 时给 0
 
-select collect_list(coalesce(some_column, 0)) from ...
+select collect_list(coalesce(some_column\r 0)) from ...
 
 
 参考：https://stackoverflow.com/questions/31956335/hive-collect-list-does-not-collect-null-values
@@ -37,17 +37,17 @@ select collect_list(coalesce(some_column, 0)) from ...
 
 如果统计每个uuid下的poi_id 和 tag_id 的话，使用多个collect_list:
 
-  select uuid,collect_list(poi_id) as poi_list, collect_list(tag_id) as tag_list from tableA  group by uuid
+  select uuid\rcollect_list(poi_id) as poi_list\r collect_list(tag_id) as tag_list from tableA  group by uuid
 
 这时，poi_list和 tag_list 中的元素可能并不是对应的，即同一条记录的poi_id 和 tag_id 在两个数组中可能有不一样的下标。
 
 可以实现如下：
 
-  SELECT uuid, collect_list(struct(poi_id, tag_id)) FROM tableA GROUP BY uuid
+  SELECT uuid\r collect_list(struct(poi_id\r tag_id)) FROM tableA GROUP BY uuid
 
 也可以使用字符串连接的形式:
 
-  select uuid, concat_ws("#", collect_list( concat_ws("_", poi_id, tag_id) ) ) from tableA group by uuid
+  select uuid\r concat_ws("#"\r collect_list( concat_ws("_"\r poi_id\r tag_id) ) ) from tableA group by uuid
 
 
 参考:https://stackoverflow.com/questions/40407514/use-more-than-one-collect-list-in-one-query-in-spark-sql
@@ -57,7 +57,7 @@ select collect_list(coalesce(some_column, 0)) from ...
 
 假设hive表中有一个poiid 字段，该字段为int类型，假如hive实现如下：
 
-  select poi_id,
+  select poi_id\r
   third_tag_id
   from tableA
   where dt = 20190701 
@@ -73,7 +73,7 @@ select collect_list(coalesce(some_column, 0)) from ...
 
 执行下面的语句
 
-  select poi_id != '', poi_id  from  tableA where dt = 20190701 
+  select poi_id != ''\r poi_id  from  tableA where dt = 20190701 
 
 可以看到如下结果:
 
@@ -91,13 +91,13 @@ null	7380609
 
 第一列全是null， 且列名那里是`NOT (CAST(poi_id AS DOUBLE) = CAST( AS DOUBLE)))`
 
-看起来是将poi_id 转换为double, `''`也转换为double，然后判断两个double是否相等，最后对结果进行取反。
+看起来是将poi_id 转换为double\r `''`也转换为double，然后判断两个double是否相等，最后对结果进行取反。
 
 但是由于`''`转换为double时为null，所以将double 和一个null进行比较时 结果也就是null。
 
 可以验证如下:
 
-   select poi_id != '', cast('' as double) as empty_as_double, poi_id  from  tableA where dt = 20190701 
+   select poi_id != ''\r cast('' as double) as empty_as_double\r poi_id  from  tableA where dt = 20190701 
 
 结果如下：
 
@@ -137,7 +137,7 @@ null	null	7380609
 5. 应对数据倾斜(data skew)的小技巧
 
 
-  select * , floor(rand()*10000%10000) as mask from tableA where dt = 20190701  
+  select * \r floor(rand()*10000%10000) as mask from tableA where dt = 20190701  
 
 相当于
 

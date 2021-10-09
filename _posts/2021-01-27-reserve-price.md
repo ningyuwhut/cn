@@ -5,38 +5,44 @@
   tags:
 --- 
 
-PID算法是自动控制领域的经典算法。现在在互联网领域也有很多应用，比如用于成本控制，用于预算平滑，用于智能出价。
+保留价是机制设计中非常重要的内容，对于这一块的理解一直比较浅。这篇文章结合自己的理解和组内的工作，对保留价做一个简单的梳理。由于没有系统学习过机制设计，所以下面的内容可能有些不准确的地方，欢迎讨论。
+
+保留价的目的就是为了提高收入。在线上一般有两个作用，一个是作为门槛，过滤掉出价过低的商家；一个是顶价，对GSP低于保留价的商家按照保留价来收费。由于组内最初使用的是基于myerson拍卖的保留价，下面简单介绍一下myerson拍卖。
 
 
-在成本控制中，比如是cpc广告，目标cpc是1块钱，那么PID可以以当前的实际cpc为输入，输出是$\lambda$，可以使用下面的公式对出价进行调整(假设使用cpm进行结算）。
+先说一下单竞拍者单物品拍卖。
+
+假设只有一个物品和一个竞拍者。对于卖家来说，他不知道竞拍者对物品的估值，只知道竞拍者的估值分布为[0,1]区间上的F(v),假设卖家设置的价格为y，那么卖家的期望收益是y(1-F(y))。
+1-F(y)即竞拍者的估值大于y的概率。接下来，卖家要怎么设置价格y才能使得期望收益最大化呢？
+
+我们对期望收益求偏导，得到如下表达式:
 
 $$
-ecpm = (cpc + \lambda) * ctr * 1000
+1-F(y)+y*(-f(y))
 $$
 
-在预算平滑中，也可以使用PID算法。
+令其为0，得到期望收益最大化时的y:
 
-预算平滑有两种方式，一种是节流，控制参竞率；一种是预算调整，其实调整的是出价。
+$$
+y^{*}=\frac{1-F(y^{*})}{f(y^{*})}
+$$
 
-在<Feedback Control of Real-Time Display Advertising>也是采用PID进行预算平滑。
+下面说一下多竞拍者单物品拍卖。
 
+有多个竞拍者后，问题就变得复杂了。除了定价外，还需要指定物品分配给哪个竞拍者。在有多个竞拍者时，期望收益最大化的定价应该也不是像上面那么简单了。这个我也不了解，就先不提了。为了保证机制是truthful的，即鼓励说真话，我们首先想到的是二价拍卖，出价最高者胜出，按照出价第二高的出价进行计费。这个机制是truthful的，但是不能保证收益最大化。为了在保证truthful的同时实现期望收益最大化，迈尔森提出了*带有保留价的二价拍卖*。首先，假设**所有竞拍者的估值是独立同分布的**，将上面单买家模型计算出来的$$y^*$$作为保留价和其他竞拍者一起参与竞价。这个机制可以证明是最优机制，但是有一个很大的局限，那就是竞拍者的估值必须要独立同分布，但是实际情况是这个假设基本上是不可能成立的。不同竞拍者的$$F(x)$$和$$f(x)$$肯定是不同的。迈尔森拍卖提出基于虚拟价值进行二价拍卖,虚拟价值如下:
 
-参考:
+$$
+ \tilde{v_i }(v_i)=\frac{1-F(v_i)}{f(v_i)}
+$$
 
-https://zhuanlan.zhihu.com/p/39573490
+同时，也加入虚拟价值为0的保留价。虚拟价值为0的保留价其实就是单竞拍者单物品拍卖时计算出来的最优价格。最终，虚拟价值最高的竞拍者胜出。
 
+![image](https://user-images.githubusercontent.com/1762074/122195743-35b90b80-cec9-11eb-8b82-932292f3525c.png)
 
-https://zhuanlan.zhihu.com/p/139244173
+![image2](https://user-images.githubusercontent.com/1762074/122195873-4e292600-cec9-11eb-8826-95a20113235c.png)
 
+参考：
 
-https://www.infoq.cn/article/akkwpvsnium9tmhhuu3f
+https://www.zhihu.com/question/263346762
 
-
-https://zhuanlan.zhihu.com/p/140933417
-
-https://mp.weixin.qq.com/s?src=11&timestamp=1611653995&ver=2852&signature=K9jmEm2*PeooBl-fFczZs3UYIjF3kqM5U9jHeUQvuLdYbjmaJ-GI-33jyNg5OmwJjlcCLifhcz7IX51g60*5qdKoO9OVfvlJhFdrlvhKcqiPWtAO7GMs*Fbq6zAj1dk7&new=1
-
-https://mp.weixin.qq.com/s?src=11&timestamp=1611653995&ver=2852&signature=KoZKsJRcrkhHFhqXC0H1pswBtm*sd5*hf3T7dXKAIHGr1XBKE3i2G07la9AJyZWPwDoZsp84N1BEi37Sfbqd*VmIaqLIEBN1GMQKoni8FNFpb8fnPqRSTYQH*7twY05Y&new=1
-
-
-https://zhuanlan.zhihu.com/p/98707378
+https://zhuanlan.zhihu.com/p/257922499
