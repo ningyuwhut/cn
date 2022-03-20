@@ -1,8 +1,8 @@
 ---
   layout: post
   title: xgboost推导
-  categories: machine learning
-  tags: machinelearning
+  categories: MachineLearning
+  tags: MachineLearning
 ---
 
 该文为阅读陈天奇的xgboost tutorial “Introduction to Boosted Trees ”的笔记，比较简略。这篇tutorial写得很详细，也比较好懂，推荐阅读。

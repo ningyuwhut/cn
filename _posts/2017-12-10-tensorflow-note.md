@@ -1,7 +1,7 @@
 ---
   layout: post
   title: tensorflow笔记
-  categories: MachineLearning,tensorflow
+  categories: MachineLearning tensorflow
   tags:
 ---
 

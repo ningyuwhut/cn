@@ -1,7 +1,7 @@
 ---
   layout: post
   title: 神经网络中的常用梯度推导
-  categories: MachineLearning,tensorflow
+  categories: MachineLearning tensorflow
   tags:
 ---
 
